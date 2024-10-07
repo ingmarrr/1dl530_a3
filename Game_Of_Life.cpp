@@ -21,12 +21,14 @@ ffmpeg -y -start_number 0 -i out%d.pgm output.gif\n\
 rm *pgm\n\
 "
 
+#define NUM_THREADS 8
+
 static int ** allocate_array(int N) {
 	int ** array;
 	int i, j;
-	array = malloc(N * sizeof(int*));
+	array = (int**)malloc(N * sizeof(int*));
 	for (i = 0; i < N ; i++)
-		array[i] = malloc(N * sizeof(int));
+		array[i] = (int*)malloc(N * sizeof(int));
 	for (i = 0; i < N ; i++)
 		for (j = 0; j < N ; j++)
 			array[i][j] = 0;
@@ -90,8 +92,8 @@ int main (int argc, char * argv[]) {
 	}
 
 	/*Allocate and initialize matrices*/
-	current = allocate_array(N);			//allocate array for current time step
-	previous = allocate_array(N); 			//allocate array for previous time step
+	current		= allocate_array(N);			//allocate array for current time step
+	previous	= allocate_array(N); 			//allocate array for previous time step
 
 	init_random(previous, current, N);	//initialize previous array with pattern
 
@@ -102,7 +104,16 @@ int main (int argc, char * argv[]) {
 	/*Game of Life*/
 
 	gettimeofday(&ts,NULL);
+	// previous, current
+	/* #pragma omp parallel for collapse(3) num_threads(NUM_THREADS) \ */
+	/* 	firstprivate(N, T)		\ */
+	/* 	private(t, i, j, nbrs)	\ */
+	/* 	shared(swap, current, previous) */
 	for (t = 0 ; t < T ; t++) {
+		#pragma omp parallel for collapse(2) num_threads(NUM_THREADS) \
+			shared(previous, current)	\
+			private(nbrs, i, j)			\
+			firstprivate(N)
 		for (i = 1 ; i < N-1 ; i++)
 			for (j = 1 ; j < N-1 ; j++) {
 				nbrs = previous[i+1][j+1] + previous[i+1][j] + previous[i+1][j-1] \
