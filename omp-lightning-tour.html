@@ -1,0 +1,1001 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2023-09-28 Thu 21:10 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OpenMP lightning tour</title>
+<meta name="author" content="Xiaoyue Chen, Ahmed Nematallah" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">OpenMP lightning tour</h1>
+<div id="outline-container-orgbb4776b" class="outline-2">
+<h2 id="orgbb4776b"><span class="section-number-2">1.</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-org4515f53" class="outline-3">
+<h3 id="org4515f53"><span class="section-number-3">1.1.</span> Parallel region</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+To parallelize a program using OMP, you can use the <code>#pragma omp
+parallel</code>. All the code to be parallelised must be in a single block,
+you can specify the number of threads using <code>num_threads(n)</code> in the
+directive, and get the thread id using <code>omp_get_thread_num()</code>,
+otherwise, it will use the environment variable to get the thread
+number.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">#pragma omp parallel num_threads(8)
+  {
+    int id = omp_get_thread_num();
+
+    printf("Thread %d Entering\n", id);
+
+    sleep(1);
+
+    printf("Thread %d Exiting\n", id);
+  }
+</pre>
+</div>
+
+<pre class="example" id="org0e48875">
+Thread 6 Entering
+Thread 1 Entering
+Thread 2 Entering
+Thread 4 Entering
+Thread 5 Entering
+Thread 3 Entering
+Thread 0 Entering
+Thread 7 Entering
+Thread 1 Exiting
+Thread 6 Exiting
+Thread 2 Exiting
+Thread 4 Exiting
+Thread 5 Exiting
+Thread 3 Exiting
+Thread 0 Exiting
+Thread 7 Exiting
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org0b71280" class="outline-3">
+<h3 id="org0b71280"><span class="section-number-3">1.2.</span> Parallel section</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+<code>#pragma omp parallel sections</code> and <code>#pragma omp section</code> allow you to
+specify different work to be done by different threads, each section
+is run once.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">#pragma omp parallel sections
+  {
+#pragma omp section
+    { printf("id = %d\n", omp_get_thread_num()); }
+
+#pragma omp section
+    { printf("id = %d\n", omp_get_thread_num()); }
+  }
+</pre>
+</div>
+
+<pre class="example">
+id = 6
+id = 7
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org3f04121" class="outline-3">
+<h3 id="org3f04121"><span class="section-number-3">1.3.</span> Parallel for</h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+<code>#pragma omp parallel for</code> allows you to parallelize a for loop, by splitting
+the iterations between threads (more on the details later on).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">#pragma omp parallel for num_threads(6)
+for (int i = 0; i &lt; 8; ++i) {
+  printf("t%d %d\n", omp_get_thread_num(), i);
+}
+</pre>
+</div>
+
+<pre class="example">
+t1 2
+t1 3
+t3 5
+t5 7
+t4 6
+t2 4
+t0 0
+t0 1
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org9c52123" class="outline-3">
+<h3 id="org9c52123"><span class="section-number-3">1.4.</span> Critical section</h3>
+<div class="outline-text-3" id="text-1-4">
+<p>
+To make sure that only one thread can execute a certain piece of code
+at a time, you can use <code>#pragma omp critical</code>, again, this applies to
+lines or blocks. It works like a lock. All critical sections are
+global (so they will wait, even for another), unless you name them
+using <code>#pragma omp critical(section_name)</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">#pragma omp parallel num_threads(8)
+  {
+    int id = omp_get_thread_num();
+
+#pragma omp critical
+    {
+      printf("Thread %d Entering\n", id);
+
+      sleep(1);
+
+      printf("Thread %d Exiting\n", id);
+    }
+  }
+</pre>
+</div>
+
+<pre class="example" id="org64c0605">
+Thread 5 Entering
+Thread 5 Exiting
+Thread 4 Entering
+Thread 4 Exiting
+Thread 2 Entering
+Thread 2 Exiting
+Thread 3 Entering
+Thread 3 Exiting
+Thread 7 Entering
+Thread 7 Exiting
+Thread 1 Entering
+Thread 1 Exiting
+Thread 6 Entering
+Thread 6 Exiting
+Thread 0 Entering
+Thread 0 Exiting
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgb733c95" class="outline-3">
+<h3 id="orgb733c95"><span class="section-number-3">1.5.</span> Barrier</h3>
+<div class="outline-text-3" id="text-1-5">
+<p>
+Use <code>#pragma omp barrier</code> to make threads wait at this point until all
+are done.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">int A[8] = {0};
+#pragma omp parallel num_threads(8)
+{
+  int tid = omp_get_thread_num();
+  A[tid] = tid;
+
+#pragma omp barrier
+
+  int val = A[(tid+1) % 8];
+  printf("t%d %d\n", tid, val);
+}
+</pre>
+</div>
+
+<pre class="example">
+t4 5
+t3 4
+t1 2
+t2 3
+t6 7
+t7 0
+t5 6
+t0 1
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-org254dbd5" class="outline-3">
+<h3 id="org254dbd5"><span class="section-number-3">1.6.</span> Single</h3>
+<div class="outline-text-3" id="text-1-6">
+<p>
+<code>#pragma omp single</code> makes a single thread execute a piece of code.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">int A[8] = {0};
+
+#pragma omp parallel num_threads(8)
+{
+  int tid = omp_get_thread_num();
+  A[tid] = tid;
+
+#pragma omp single
+  {
+    printf("t%d\n", tid);
+  }
+}
+</pre>
+</div>
+
+<pre class="example">
+t6
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgac39c20" class="outline-3">
+<h3 id="orgac39c20"><span class="section-number-3">1.7.</span> Ordered</h3>
+<div class="outline-text-3" id="text-1-7">
+<p>
+<code>#pragma omp ordered</code> allows the execution of a certain part of a loop
+as if it was execute serially. Don't forget to add the ordered clause
+to your for loop pragma to allow this to be used.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">#pragma omp parallel for ordered
+  for (int i = 0; i &lt; 10; i++)
+#pragma omp ordered
+    printf("Hello from thread: %d iteration: %d\n", omp_get_thread_num(), i);
+</pre>
+</div>
+
+<pre class="example" id="org7005b78">
+Hello from thread: 0 iteration: 0
+Hello from thread: 1 iteration: 1
+Hello from thread: 2 iteration: 2
+Hello from thread: 3 iteration: 3
+Hello from thread: 4 iteration: 4
+Hello from thread: 5 iteration: 5
+Hello from thread: 6 iteration: 6
+Hello from thread: 7 iteration: 7
+Hello from thread: 8 iteration: 8
+Hello from thread: 9 iteration: 9
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org4ada0f6" class="outline-3">
+<h3 id="org4ada0f6"><span class="section-number-3">1.8.</span> Private and shared</h3>
+<div class="outline-text-3" id="text-1-8">
+<p>
+You can set variables to be shared between threads, or private to each
+thread. By default, variables declared outside of the pragma region
+are shared. The default can be changed by setting <code>default(shared)</code> or
+<code>default(private)</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">int z = 0;
+#pragma omp parallel for private(z)
+for (int i = 0; i &lt; 10; i++) {
+  z++;
+ }
+printf("%d\n", z);
+</pre>
+</div>
+
+<pre class="example">
+0
+</pre>
+
+
+<p>
+<code>firstprivate</code>, means the variable will be initialized with the value
+it had before the parallel section, and <code>lastprivate</code> means it will be
+set to the value of the last iteration after finishing.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">int z = 5;
+#pragma omp parallel for firstprivate(z) lastprivate(z)
+for (int i = 0; i &lt; 16; i++) {
+  z++;
+ }
+printf("%d\n", z);
+</pre>
+</div>
+
+<pre class="example">
+6
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2d82281" class="outline-2">
+<h2 id="org2d82281"><span class="section-number-2">2.</span> Parallel increment</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org661b6da" class="outline-3">
+<h3 id="org661b6da"><span class="section-number-3">2.1.</span> Serial</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+You can measure the time using <code>omp_get_wtime()</code>, it returns the
+current time in seconds as a double precision floating point number.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">double start_time = omp_get_wtime();
+
+int z = 0;
+for (int i = 0; i &lt; 100000000; i++) {
+  z++;
+ }
+
+double run_time = omp_get_wtime() - start_time;
+printf("Elapsed time for serial: %lf seconds\n", run_time);
+printf("%d\n", z);
+</pre>
+</div>
+
+<pre class="example">
+Elapsed time for serial: 0.172830 seconds
+100000000
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org064bd25" class="outline-3">
+<h3 id="org064bd25"><span class="section-number-3">2.2.</span> Data race</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+<code>#pragma omp parallel for</code> allows you to parallelize a for loop, by
+splitting the iterations between threads (more on the details later
+on). shared means the variable is shared between threads, more on this
+in a bit. What is going on here?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">double start_time = omp_get_wtime();
+
+int z = 0;
+#pragma omp parallel for shared(z)
+for (int i = 0; i &lt; 100000000; i++) {
+  z++;
+ }
+
+double run_time = omp_get_wtime() - start_time;
+printf("Elapsed time for parallel: %lf seconds\n", run_time);
+printf("%d\n", z);
+</pre>
+</div>
+
+<pre class="example">
+Elapsed time for parallel: 0.314479 seconds
+9908617
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orga29e597" class="outline-3">
+<h3 id="orga29e597"><span class="section-number-3">2.3.</span> Atomic</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+If two threads try to increment z at the same time, they will both
+read an old value and increment it by 1, so we did 2 increments, but
+the number only increased by 1. <code>#pragma omp atomic</code> specifies that a
+certain operation occurs atomically, meaning without interruption,
+this normally uses certain hardware instructions, so it can't apply to
+code blocks, and is more limited. This program is parallel, but runs
+much slower, why??
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">double start_time = omp_get_wtime();
+
+int z = 0;
+#pragma omp parallel for shared(z)
+for (int i = 0; i &lt; 100000000; i++) {
+#pragma omp atomic
+  z++;
+ }
+
+double run_time = omp_get_wtime() - start_time;
+printf("Elapsed time for atomic: %lf seconds\n", run_time);
+
+printf("%d\n", z);
+</pre>
+</div>
+
+<pre class="example">
+Elapsed time for atomic: 2.428140 seconds
+100000000
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgf49474c" class="outline-3">
+<h3 id="orgf49474c"><span class="section-number-3">2.4.</span> Critical</h3>
+<div class="outline-text-3" id="text-2-4">
+<p>
+This program is also parallel, but runs even slower. <code>#pragma omp
+atomic</code> and <code>#pragma omp critical</code> have synchromization on each
+addition, which is very costly, you should use them, but understand
+they can make your program slower in certain cases. Atomic addition
+can be 25 times more expensive and in a critical section can be up to
+200 times more expensive.
+</p>
+
+<p>
+Source for last claim: <a href="https://stackoverflow.com/a/21364713">https://stackoverflow.com/a/21364713</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">double start_time = omp_get_wtime();
+
+int z = 0;
+#pragma omp parallel for shared(z)
+for (int i = 0; i &lt; 100000000; i++) {
+#pragma omp critical(for_loop_increment)
+  z++;
+ }
+
+double run_time = omp_get_wtime() - start_time;
+printf("Elapsed time for critical: %lf seconds\n", run_time);
+
+printf("%d\n", z);
+</pre>
+</div>
+
+<pre class="example">
+Elapsed time for critical: 18.937127 seconds
+100000000
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org7231e32" class="outline-3">
+<h3 id="org7231e32"><span class="section-number-3">2.5.</span> Reduction</h3>
+<div class="outline-text-3" id="text-2-5">
+<p>
+Having a per-thread counter that isn't atomically updated, then
+reducing the final result using addition, for this you can have an
+array of counters that is updated (could be problematic if you don't
+take care into making sure each counter is on a separate cache line to
+avoid synchromization). You can also simply use <code>reduction(+ :
+counter)</code> to do this for you, this works for simple operations like
+<code>+ - * &amp; | ^ &amp;&amp; ||</code>. <span class="underline">Finally</span>, we are faster than the serial version.
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-C">double start_time = omp_get_wtime();
+
+int z = 0;
+#pragma omp parallel for reduction(+ : z)
+for (int i = 0; i &lt; 100000000; i++) {
+  z++;
+ }
+
+double run_time = omp_get_wtime() - start_time;
+printf("Elapsed time for reduction: %lf seconds\n", run_time);
+
+printf("%d\n", z);
+</pre>
+</div>
+
+<pre class="example">
+Elapsed time for reduction: 0.023202 seconds
+100000000
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf5d851a" class="outline-2">
+<h2 id="orgf5d851a"><span class="section-number-2">3.</span> Nested loops</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-orgbf1b9a7" class="outline-3">
+<h3 id="orgbf1b9a7"><span class="section-number-3">3.1.</span> Outer loop</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+Notice something here? All iterations that begin with a zero (i == 0)
+are executed by thread 0, all iterations that begin with a one are
+executed by thread 1 and so on. The nested loop is executed serially
+by one thread. This also means increasing the number of threads does
+nothing.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">#pragma omp parallel for
+  for (int i = 0; i &lt; 10; i++)
+    for (int j = 0; j &lt; 2; j++)
+      printf("Hello from thread: %d iteration: %02d\n", omp_get_thread_num(),
+             i * 10 + j);
+</pre>
+</div>
+
+<pre class="example" id="org3bc151a">
+Hello from thread: 5 iteration: 50
+Hello from thread: 5 iteration: 51
+Hello from thread: 4 iteration: 40
+Hello from thread: 4 iteration: 41
+Hello from thread: 1 iteration: 10
+Hello from thread: 7 iteration: 70
+Hello from thread: 7 iteration: 71
+Hello from thread: 1 iteration: 11
+Hello from thread: 3 iteration: 30
+Hello from thread: 3 iteration: 31
+Hello from thread: 6 iteration: 60
+Hello from thread: 6 iteration: 61
+Hello from thread: 9 iteration: 90
+Hello from thread: 9 iteration: 91
+Hello from thread: 0 iteration: 00
+Hello from thread: 0 iteration: 01
+Hello from thread: 8 iteration: 80
+Hello from thread: 8 iteration: 81
+Hello from thread: 2 iteration: 20
+Hello from thread: 2 iteration: 21
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org4ff7ee4" class="outline-3">
+<h3 id="org4ff7ee4"><span class="section-number-3">3.2.</span> Wrong example</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+This does nothing, <span class="underline">don't</span> use it.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">#pragma omp parallel for
+  for (int i = 0; i &lt; 10; i++)
+#pragma omp parallel for
+    for (int j = 0; j &lt; 2; j++)
+      printf("Hello from thread: %d iteration: %02d\n", omp_get_thread_num(),
+             i * 10 + j);
+</pre>
+</div>
+
+<pre class="example" id="org6c69443">
+Hello from thread: 0 iteration: 00
+Hello from thread: 0 iteration: 01
+Hello from thread: 0 iteration: 60
+Hello from thread: 0 iteration: 61
+Hello from thread: 0 iteration: 90
+Hello from thread: 0 iteration: 91
+Hello from thread: 0 iteration: 30
+Hello from thread: 0 iteration: 31
+Hello from thread: 0 iteration: 20
+Hello from thread: 0 iteration: 21
+Hello from thread: 0 iteration: 80
+Hello from thread: 0 iteration: 81
+Hello from thread: 0 iteration: 70
+Hello from thread: 0 iteration: 71
+Hello from thread: 0 iteration: 50
+Hello from thread: 0 iteration: 51
+Hello from thread: 0 iteration: 10
+Hello from thread: 0 iteration: 11
+Hello from thread: 0 iteration: 40
+Hello from thread: 0 iteration: 41
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org9082e5b" class="outline-3">
+<h3 id="org9082e5b"><span class="section-number-3">3.3.</span> Collapse</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+Now we can parallelize nested loops by collapsing them. (<code>collapse(n)</code>
+where n in the number of nested loops to collapse). ONLY DO THIS IF
+THERE ARE NO INTER LOOP DEPENDANCIES, IF THE RESULT OF ONE ITERATION
+RELIES ON THE RESULT OF THE PREVIOUS, DON'T USE IT.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">#pragma omp parallel for collapse(2)
+for (int i = 0; i &lt; 10; i++)
+  for (int j = 0; j &lt; 2; j++)
+    printf("Hello from thread: %d iteration: %02d\n", omp_get_thread_num(),
+           i * 10 + j);
+</pre>
+</div>
+
+<pre class="example" id="org29fd1c0">
+Hello from thread: 0 iteration: 00
+Hello from thread: 0 iteration: 01
+Hello from thread: 11 iteration: 91
+Hello from thread: 7 iteration: 70
+Hello from thread: 3 iteration: 30
+Hello from thread: 3 iteration: 31
+Hello from thread: 7 iteration: 71
+Hello from thread: 4 iteration: 40
+Hello from thread: 4 iteration: 41
+Hello from thread: 2 iteration: 20
+Hello from thread: 8 iteration: 80
+Hello from thread: 2 iteration: 21
+Hello from thread: 6 iteration: 60
+Hello from thread: 6 iteration: 61
+Hello from thread: 9 iteration: 81
+Hello from thread: 1 iteration: 10
+Hello from thread: 5 iteration: 50
+Hello from thread: 1 iteration: 11
+Hello from thread: 5 iteration: 51
+Hello from thread: 10 iteration: 90
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8ffcc41" class="outline-2">
+<h2 id="org8ffcc41"><span class="section-number-2">4.</span> Scheduling</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Scheduling determines how the iterations are split between threads.
+There are five types: static, dynamic, guided, auto, and runtime.
+</p>
+
+<p>
+For more information, check this link:
+<a href="http://jakascorner.com/blog/2016/06/omp-for-scheduling.html">http://jakascorner.com/blog/2016/06/omp-for-scheduling.html</a>
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>Balanced</label><pre class="src src-C" id="org6fb3079">omp_set_schedule(schedule , 0); /* use `OMP_SCHEDULE=bla program' instead */
+
+double start_time = omp_get_wtime();
+
+int z = 0;
+#pragma omp parallel for schedule(runtime) reduction(+ : z)
+for (int i = 0; i &lt; 100000000; i++) {
+  z++;
+ }
+
+double run_time = omp_get_wtime() - start_time;
+printf("%lf seconds\n", run_time);
+</pre>
+</div>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 2: </span>Unbalanced</label><pre class="src src-C" id="org132f302">int unbalanced_function(int n) {
+  int ret = 0;
+  for (int i = 0; i &lt; n; i++) {
+    ret++;
+  }
+  return ret;
+}
+
+
+omp_set_schedule(schedule , 0);
+
+double start_time = omp_get_wtime();
+
+int z = 0;
+#pragma omp parallel for schedule(runtime) reduction(+ : z)
+  for (int i = 0; i &lt; 100000; i++) {
+    z += unbalanced_function(i);
+  }
+
+double run_time = omp_get_wtime() - start_time;
+printf("%lf seconds\n", run_time);
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org1941bb5" class="outline-3">
+<h3 id="org1941bb5"><span class="section-number-3">4.1.</span> Static</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+Static splits the iterations equally between threads, and each thread
+gets a sequential part. If we specify a chunk size, it will give the
+chunks to the threads in a circular fashion, for example, 100
+iterations, 2 threads and 25 chunk size means thread 0 gets iterations
+0-24, and 50-74, while thread one gets iterations 25-49, and 75-99.
+Not specifying a chunk size means it will be approximately the number
+of iterations divided by the number of threads. This scheme has low
+overhead but can be unfair if some cores are slower than others, or
+some iterations take longer than others.
+</p>
+
+<p>
+Balanced
+</p>
+<pre class="example">
+0.023387 seconds
+</pre>
+
+
+<p>
+Unbalanced
+</p>
+<pre class="example">
+1.301762 seconds
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org76371bf" class="outline-3">
+<h3 id="org76371bf"><span class="section-number-3">4.2.</span> Dynamic</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+Dynamic makes every thread take a chunk of iterations, and request
+more when it's done. By default the chunk size is 1. This has much
+more overhead than static scheduling, but it's also more fair, and can
+perform better when the processors or iterations are unbalanced.
+</p>
+
+<p>
+Balanced
+</p>
+<pre class="example">
+1.623558 seconds
+</pre>
+
+
+<p>
+Unbalanced
+</p>
+<pre class="example">
+0.861875 seconds
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org99400ec" class="outline-3">
+<h3 id="org99400ec"><span class="section-number-3">4.3.</span> Guided</h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+Guided is similar to dynamic, but the chunk size starts large and
+decreases (proportional to the number of remaining iterations divided
+by the number of threads). Specifying the chunk size sets the minimum
+number of iterations a thread can take.
+</p>
+
+<p>
+Balanced
+</p>
+<pre class="example">
+0.031473 seconds
+</pre>
+
+
+<p>
+Unbalanced
+</p>
+<pre class="example">
+0.860238 seconds
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgac3b7dd" class="outline-3">
+<h3 id="orgac3b7dd"><span class="section-number-3">4.4.</span> Auto</h3>
+<div class="outline-text-3" id="text-4-4">
+<p>
+Auto lets the compiler or runtime decide for you.
+</p>
+
+<p>
+Balanced
+</p>
+<pre class="example">
+0.026311 seconds
+</pre>
+
+
+<p>
+Unbalanced
+</p>
+<pre class="example">
+1.340524 seconds
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org9db62e7" class="outline-3">
+<h3 id="org9db62e7"><span class="section-number-3">4.5.</span> Runtime</h3>
+<div class="outline-text-3" id="text-4-5">
+<p>
+Runtime lets the runtime decide usng environment variables.
+(<code>OMP_SCHEDULE</code>).
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Xiaoyue Chen, Ahmed Nematallah</p>
+<p class="date">Created: 2023-09-28 Thu 21:10</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
