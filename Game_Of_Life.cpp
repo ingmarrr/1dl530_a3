@@ -21,7 +21,7 @@ ffmpeg -y -start_number 0 -i out%d.pgm output.gif\n\
 rm *pgm\n\
 "
 
-#define NUM_THREADS 8
+#define NUM_THREADS 512
 
 static int ** allocate_array(int N) {
 	int ** array;
@@ -105,10 +105,6 @@ int main (int argc, char * argv[]) {
 
 	gettimeofday(&ts,NULL);
 	// previous, current
-	/* #pragma omp parallel for collapse(3) num_threads(NUM_THREADS) \ */
-	/* 	firstprivate(N, T)		\ */
-	/* 	private(t, i, j, nbrs)	\ */
-	/* 	shared(swap, current, previous) */
 	for (t = 0 ; t < T ; t++) {
 		#pragma omp parallel for collapse(2) num_threads(NUM_THREADS) \
 			shared(previous, current)	\
