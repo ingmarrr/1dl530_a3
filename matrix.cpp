@@ -1,5 +1,5 @@
 #include <omp.h>
-#include <bits/stdc++.h>
+#include <iostream>
 #include "randutils.hpp"
 
 const char* USAGE =

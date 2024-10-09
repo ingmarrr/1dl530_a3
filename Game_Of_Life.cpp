@@ -20,7 +20,7 @@
 ffmpeg -y -start_number 0 -i out%d.pgm output.gif\n\
 rm *pgm\n\
 "
-
+//to change the nb of threads
 #define NUM_THREADS 512
 
 static int ** allocate_array(int N) {
