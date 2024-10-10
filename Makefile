@@ -1,20 +1,26 @@
 #
-# # example Makefile to build an executable named myprog from myprog.cpp
+# # example Makefile to build and run the programs from Assignment 3
 # #
 SIEVE=sieve
+MAX=100000000	
+SIEVE_ARGS=$(NB_THREADS) $(MAX) # used for ex. 1
+
+GOF=Game_Of_Life
+SIZE=4096
+STEPS=2000
+GOF_ARGS=$(SIZE) $(STEPS) # used for ex. 2
 
 MATRIX=matrix
-NB_THREADS=512
-MAX=100000000	# used for ex. 1
-DIM=1000		# used for ex. 3
+DIM=1000		
+MATRIX_ARGS=$(NB_THREADS) $(DIM) # used for ex. 3
 
 GAUSSIAN=gaussian
-DIM=42000
-NB_THREADS=8
-G_ARGS=$(NB_THREADS) $(DIM)
+DIM=42000		
+GAUSSIAN_ARGS=$(NB_THREADS) $(DIM) # used for ex. 4
 
-ARGS=$(G_ARGS)
+ARGS=$(GAUSSIAN_ARGS)
 PROG=$(GAUSSIAN)
+NB_THREADS=64
 CC=clang++
 
 # given the number of threads as the second arg and number of trepezes as the third
@@ -23,6 +29,7 @@ run: build
 
 build: $(PROG).cpp
 	@$(CC) -std=c++11 -Wall -fopenmp $(PROG).cpp -o bin/$(PROG)
+	@export OMP_NUM_THREADS=$(NB_THREADS)
 
 build-run: $(PROG).cpp
 	@$(CC) -std=c++11 -Wall -fopenmp $(PROG).cpp -o bin/$(PROG)
@@ -32,15 +39,15 @@ clean:
 	@rm -rf bin
 	@mkdir bin
 
+
 run-win: build-win
-	@./$(PROG).exe $(NB_THREADS) $(NB_TRAPS)
+	@./$(PROG).exe $(CC_GOF)
 
 build-win: $(PROG).cpp
 	@g++ -std=c++11 -Wall -fopenmp $(PROG).cpp -o $(PROG)
+	@set OMP_NUM_THREADS=$(NB_THREADS)
 
 build-run-win: $(PROG).cpp
 	@g++ -std=c++11 -Wall -fopenmp $(PROG).cpp -o $(PROG)
 	@set OMP_NUM_THREADS=$(NB_THREADS)
-	@./$(PROG).exe $(NB_THREADS) $(DIM)
-
-
+	@./$(PROG).exe $(ARGS)
